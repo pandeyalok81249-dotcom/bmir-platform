@@ -80,3 +80,4 @@ async def cancel_subscription(
         message="Subscription set to cancel at the end of the current billing cycle.",
         data=UserSubscriptionResponse.model_validate(sub),
     )
+

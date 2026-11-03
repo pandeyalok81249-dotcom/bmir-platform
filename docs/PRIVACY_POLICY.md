@@ -55,3 +55,4 @@ Under GDPR and CCPA, you have the right to:
 For privacy inquiries, data deletion requests, or compliance questions:
 - **Email**: privacy@resumeintelligence.ai
 - **Data Protection Officer**: dpo@resumeintelligence.ai
+

@@ -188,3 +188,4 @@ async def test_interview_api_full_flow(client: AsyncClient, auth_headers: dict):
     hist_data = hist_resp.json()["data"]
     assert len(hist_data) >= 1
     assert any(s["id"] == session_id for s in hist_data)
+

@@ -78,3 +78,4 @@ def downgrade() -> None:
     op.drop_index('ix_user_subscriptions_user_id', table_name='user_subscriptions')
     op.drop_index('ix_user_subscriptions_id', table_name='user_subscriptions')
     op.drop_table('user_subscriptions')
+

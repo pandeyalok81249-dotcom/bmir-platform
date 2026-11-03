@@ -79,3 +79,4 @@ async def test_subscription_upgrade_and_cancellation(client: AsyncClient, auth_h
     cancel_resp = await client.post("/api/v1/subscriptions/cancel", headers=auth_headers)
     assert cancel_resp.status_code == 200
     assert cancel_resp.json()["data"]["cancel_at_period_end"] is True
+

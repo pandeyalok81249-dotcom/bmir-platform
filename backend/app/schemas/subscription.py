@@ -50,3 +50,4 @@ class EntitlementCheckResponse(BaseModel):
     current_tier: str
     required_tier: Optional[str] = None
     reason: Optional[str] = None
+

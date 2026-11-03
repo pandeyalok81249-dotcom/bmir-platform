@@ -59,3 +59,4 @@ def test_composite_indexes_registered():
     assert "ix_job_matches_version_score" in indexes
     assert "ix_interviews_user_created" in indexes
     assert "ix_subscriptions_user_status" in indexes
+
