@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, Float, ForeignKey, JSON, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, Float, ForeignKey, Index, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
@@ -34,6 +34,9 @@ class JobDescription(Base):
 
 class JobMatch(Base):
     __tablename__ = "job_matches"
+    __table_args__ = (
+        Index("ix_job_matches_version_score", "resume_version_id", "match_score"),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),

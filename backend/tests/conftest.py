@@ -29,6 +29,7 @@ from app.models.collaboration import (
     CollaborationEvent,
     ResumeRevision,
 )
+from app.models.subscription import UserSubscription, UserUsageQuota
 from app.main import app
 from app.schemas.analysis import ResumeAnalysisResult
 from tests.test_ai_providers import MOCK_ANALYSIS_JSON

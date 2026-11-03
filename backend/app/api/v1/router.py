@@ -17,6 +17,7 @@ from app.api.v1.endpoints import (
     resumes,
     roadmaps,
     settings,
+    subscriptions,
 )
 
 api_router = APIRouter()
@@ -37,4 +38,5 @@ api_router.include_router(interviews.router)
 api_router.include_router(applications.router)
 api_router.include_router(roadmaps.router)
 api_router.include_router(settings.router)
+api_router.include_router(subscriptions.router)
 

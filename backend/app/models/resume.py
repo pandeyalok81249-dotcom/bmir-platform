@@ -1,12 +1,15 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 
 class Resume(Base):
     __tablename__ = "resumes"
+    __table_args__ = (
+        Index("ix_resumes_user_created", "user_id", "created_at"),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),

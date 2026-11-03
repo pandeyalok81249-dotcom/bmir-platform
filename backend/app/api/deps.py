@@ -14,6 +14,7 @@ from app.models.collaboration import (
 )
 from app.models.resume import Resume
 from app.models.user import User
+from app.services.entitlement_service import entitlement_service
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login"
@@ -160,3 +161,33 @@ async def check_resume_access(
         )
 
     return resume, role
+
+
+def require_feature(feature: str):
+    async def dependency(
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ) -> User:
+        check = await entitlement_service.check_feature(db, current_user.id, feature)
+        if not check.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=check.reason or f"Feature '{feature}' is not available on your current plan.",
+            )
+        return current_user
+    return dependency
+
+
+def require_quota(metric: str):
+    async def dependency(
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ) -> User:
+        allowed, current, limit = await entitlement_service.check_and_increment_quota(db, current_user.id, metric)
+        if not allowed:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Monthly quota limit reached for {metric} ({current}/{limit}). Please upgrade your tier.",
+            )
+        return current_user
+    return dependency

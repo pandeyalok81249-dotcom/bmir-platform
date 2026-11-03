@@ -44,6 +44,8 @@ class User(Base):
     career_roadmaps = relationship("CareerRoadmap", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
     ai_usage_logs = relationship("AIUsageLog", back_populates="user", cascade="all, delete-orphan")
+    subscription = relationship("UserSubscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    usage_quota = relationship("UserUsageQuota", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
 
 class OAuthAccount(Base):

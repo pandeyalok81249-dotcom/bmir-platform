@@ -1,12 +1,15 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, Float, ForeignKey, JSON, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, Index, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 
 class ResumeAnalysis(Base):
     __tablename__ = "resume_analyses"
+    __table_args__ = (
+        Index("ix_analyses_resume_created", "resume_id", "created_at"),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),

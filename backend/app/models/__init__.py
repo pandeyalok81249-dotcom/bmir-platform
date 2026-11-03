@@ -18,6 +18,7 @@ from app.models.collaboration import (
     CollaborationEvent,
     ResumeRevision,
 )
+from app.models.subscription import UserSubscription, UserUsageQuota
 
 __all__ = [
     "Base",
@@ -44,4 +45,6 @@ __all__ = [
     "ResumeSuggestion",
     "CollaborationEvent",
     "ResumeRevision",
+    "UserSubscription",
+    "UserUsageQuota",
 ]
