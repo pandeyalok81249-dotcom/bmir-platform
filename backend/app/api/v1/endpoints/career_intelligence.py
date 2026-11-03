@@ -91,10 +91,10 @@ async def simulate_career_trajectory(
     prof_res = await db.execute(select(UserProfile).where(UserProfile.user_id == current_user.id))
     profile = prof_res.scalars().first()
     if profile:
-        if profile.years_of_experience:
-            exp_years = float(profile.years_of_experience)
-        if profile.skills:
-            for s in profile.skills:
+        if getattr(profile, "experience_years", None) is not None:
+            exp_years = float(profile.experience_years)
+        if isinstance(profile.preferences, dict) and "skills" in profile.preferences:
+            for s in profile.preferences["skills"]:
                 if s not in skills:
                     skills.append(s)
 
