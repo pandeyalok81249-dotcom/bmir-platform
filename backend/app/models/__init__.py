@@ -1,4 +1,18 @@
 from app.core.database import Base
+from app.models.bmir import (
+    BMIRUser,
+    Innovation,
+    PatentRecord,
+    ResearchProject,
+    Experiment,
+    FeasibilityEvaluation,
+    InnovationRoadmap,
+    KnowledgeDocument,
+    CollaborationEnquiry,
+    AIConversation,
+    AIMessage,
+    AuditLog,
+)
 from app.models.user import User, OAuthAccount
 from app.models.profile import UserProfile
 from app.models.resume import Resume, ResumeVersion
@@ -22,6 +36,18 @@ from app.models.subscription import UserSubscription, UserUsageQuota
 
 __all__ = [
     "Base",
+    "BMIRUser",
+    "Innovation",
+    "PatentRecord",
+    "ResearchProject",
+    "Experiment",
+    "FeasibilityEvaluation",
+    "InnovationRoadmap",
+    "KnowledgeDocument",
+    "CollaborationEnquiry",
+    "AIConversation",
+    "AIMessage",
+    "AuditLog",
     "User",
     "OAuthAccount",
     "UserProfile",

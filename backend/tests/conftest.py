@@ -118,6 +118,19 @@ async def db_schema_lifecycle():
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    # Seed BMIR baseline in test suite
+    from app.db_init_and_seed import init_and_seed
+    import app.core.database as cdb
+    old_engine = cdb.engine
+    old_maker = cdb.async_session_maker
+    cdb.engine = test_engine
+    cdb.async_session_maker = test_async_session
+    try:
+        await init_and_seed()
+    finally:
+        cdb.engine = old_engine
+        cdb.async_session_maker = old_maker
+
     yield
 
     async with test_engine.begin() as conn:

@@ -109,6 +109,45 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     )
 
 
+@router.get("/demo-token", response_model=APIResponse[AuthResponseData])
+async def get_demo_token(db: AsyncSession = Depends(get_db)):
+    demo_email = "demo@careerintel.ai"
+    res = await db.execute(select(User).where(User.email == demo_email))
+    user = res.scalars().first()
+    if not user:
+        user = User(
+            email=demo_email,
+            password_hash=get_password_hash("DemoSecret123!"),
+            email_verified=True,
+        )
+        db.add(user)
+        await db.flush()
+        profile = UserProfile(
+            user_id=user.id,
+            full_name="Alex Mercer (Staff Candidate)",
+            experience_years=6.0,
+            current_role="Senior Backend Engineer",
+            target_role="Staff Platform Architect",
+        )
+        db.add(profile)
+        await db.commit()
+        await db.refresh(user)
+
+    access_token = create_access_token(user.id)
+    refresh_token = create_refresh_token(user.id)
+    tokens = TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    )
+    user_resp = UserResponse.model_validate(user)
+    return APIResponse(
+        success=True,
+        message="Demo session ready.",
+        data=AuthResponseData(user=user_resp, tokens=tokens),
+    )
+
+
 @router.post("/google", response_model=APIResponse[AuthResponseData])
 async def google_auth(auth_req: GoogleAuthRequest, db: AsyncSession = Depends(get_db)):
     """

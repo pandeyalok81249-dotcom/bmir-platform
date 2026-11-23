@@ -1,8 +1,10 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import api_router
 from app.core.config import settings
@@ -28,8 +30,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version="1.0.0",
-    description="Production-Ready AI Resume Intelligence Platform REST API",
+    version="2.0.0",
+    description="BMIR 2.0 - Bharat Multisector Innovation & Research Enterprise REST API",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url=f"{settings.API_V1_STR}/docs",
     redoc_url=f"{settings.API_V1_STR}/redoc",
@@ -93,4 +95,17 @@ async def readiness_check():
 
 # Mount API V1
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Static Web Application
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def serve_index():
+    index_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "BMIR 2.0 Enterprise REST API is running."}
 

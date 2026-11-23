@@ -12,9 +12,79 @@ from app.models.collaboration import (
     WorkspaceMember,
     WorkspaceResume,
 )
-from app.models.resume import Resume
+from app.models.bmir import BMIRUser
 from app.models.user import User
+from app.models.resume import Resume
 from app.services.entitlement_service import entitlement_service
+
+bmir_oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/bmir/auth/login",
+    auto_error=False
+)
+
+async def get_current_bmir_user(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(bmir_oauth2_scheme),
+) -> BMIRUser:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user_id: str = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token missing user subject",
+        )
+    result = await db.execute(select(BMIRUser).where(BMIRUser.id == user_id))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended or deactivated",
+        )
+    return user
+
+
+async def get_optional_bmir_user(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(bmir_oauth2_scheme),
+) -> Optional[BMIRUser]:
+    if not token:
+        return None
+    try:
+        return await get_current_bmir_user(db=db, token=token)
+    except HTTPException:
+        return None
+
+
+def require_bmir_role(allowed_roles: list[str]):
+    async def role_checker(
+        current_user: BMIRUser = Depends(get_current_bmir_user),
+    ) -> BMIRUser:
+        # super_admin and founder have universal access
+        if current_user.role in ["super_admin", "founder"] or current_user.role in allowed_roles:
+            return current_user
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: Requires one of roles {allowed_roles}, your role is {current_user.role}",
+        )
+    return role_checker
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login"
